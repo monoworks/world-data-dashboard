@@ -3,6 +3,8 @@ import { Outlet, useLocation } from 'react-router-dom'
 import { Header } from './Header'
 import { Sidebar } from './Sidebar'
 import { ErrorBoundary } from '@/components/common/ErrorBoundary'
+import { useUIStore } from '@/stores/uiStore'
+import { t } from '@/utils/i18n'
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -14,6 +16,7 @@ function ScrollToTop() {
 
 export function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const lang = useUIStore((s) => s.lang)
 
   return (
     <div className="min-h-screen bg-[hsl(var(--background))] flex flex-col">
@@ -27,7 +30,7 @@ export function AppLayout() {
       </main>
       <footer className="border-t border-[hsl(var(--border))] py-4 text-center text-xs text-[hsl(var(--muted-foreground))]">
         <div className="container mx-auto px-4">
-          World Data Dashboard &middot; Data from{' '}
+          {t('app.footer', lang)} &middot; {t('app.footer.dataFrom', lang)}{' '}
           <a
             href="https://data.worldbank.org/"
             target="_blank"

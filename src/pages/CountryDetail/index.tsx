@@ -17,6 +17,7 @@ import {
   INDICATOR_REGISTRY,
 } from '@/utils/constants'
 import { getIndicatorFormatter } from '@/utils/formatters'
+import { t, indicatorName } from '@/utils/i18n'
 import type { IndicatorCategory } from '@/types/indicator'
 
 const QUICK_STATS = [
@@ -34,6 +35,7 @@ export default function CountryDetail() {
   const iso3 = (code || '').toUpperCase()
   const { countryMap, isLoading: countriesLoading } = useCountries()
   const { exportIndicatorData } = useFileStorage()
+  const lang = useUIStore((s) => s.lang)
 
   const [selectedCategory, setSelectedCategory] = useState<IndicatorCategory>('economy')
   const [startYear, setStartYear] = useState(DEFAULT_YEAR_RANGE.start)
@@ -92,7 +94,7 @@ export default function CountryDetail() {
               <p className="text-sm text-[hsl(var(--muted-foreground))]">
                 {country.region}
                 {country.subregion ? ` / ${country.subregion}` : ''}
-                {' \u00B7 Capital: '}
+                {' · '}{t('country.capital', lang)}{': '}
                 {country.capitalCity || 'N/A'}
               </p>
             </div>
@@ -108,7 +110,7 @@ export default function CountryDetail() {
         className="inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] hover:bg-[hsl(var(--accent))] no-underline"
       >
         <GitCompareArrows className="h-4 w-4" />
-        Compare with other countries
+        {t('country.compareWith', lang)}
       </Link>
 
       {/* Quick stats */}
@@ -126,7 +128,7 @@ export default function CountryDetail() {
           return (
             <DataCard
               key={statCode}
-              title={meta?.name || statCode}
+              title={indicatorName(meta, lang) || statCode}
               value={latest?.value != null ? formatter(latest.value) : '--'}
               currentValue={latest?.value ?? undefined}
               previousValue={prev?.value ?? undefined}
@@ -163,7 +165,7 @@ export default function CountryDetail() {
                 key={ind.code}
                 className="rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4"
               >
-                <h3 className="text-sm font-semibold mb-2">{ind.name}</h3>
+                <h3 className="text-sm font-semibold mb-2">{indicatorName(ind, lang)}</h3>
                 <ErrorState onRetry={() => query.refetch()} />
               </div>
             )
@@ -177,7 +179,7 @@ export default function CountryDetail() {
               key={ind.code}
               className="rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4"
             >
-              <h3 className="text-sm font-semibold mb-2">{ind.name}</h3>
+              <h3 className="text-sm font-semibold mb-2">{indicatorName(ind, lang)}</h3>
               <LineChart
                 series={[{ name: country?.name || iso3, data: chartData }]}
                 xAxisData={xLabels}

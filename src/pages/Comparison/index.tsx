@@ -4,6 +4,7 @@ import { GitCompareArrows } from 'lucide-react'
 import { useCountries } from '@/hooks/useCountries'
 import { useIndicatorData } from '@/hooks/useIndicator'
 import { useFileStorage } from '@/hooks/useFileStorage'
+import { useUIStore } from '@/stores/uiStore'
 import { LineChart } from '@/components/charts/LineChart'
 import { BarChart } from '@/components/charts/BarChart'
 import { CountrySelector } from '@/components/common/CountrySelector'
@@ -18,12 +19,14 @@ import {
   getIndicatorsByCategory,
 } from '@/utils/constants'
 import { getIndicatorFormatter } from '@/utils/formatters'
+import { t, indicatorName } from '@/utils/i18n'
 import type { IndicatorCategory } from '@/types/indicator'
 
 export default function Comparison() {
   const [searchParams, setSearchParams] = useSearchParams()
   const { searchItems, isLoading: countriesLoading, isError: countriesError, refetch: refetchCountries } = useCountries()
   const { exportIndicatorData } = useFileStorage()
+  const lang = useUIStore((s) => s.lang)
 
   // URL-driven state
   const countriesParam = searchParams.get('countries') || ''
@@ -104,27 +107,27 @@ export default function Comparison() {
     <div className="space-y-6">
       <div className="flex items-center gap-3">
         <GitCompareArrows className="h-8 w-8 text-[hsl(var(--primary))]" />
-        <h1 className="text-3xl font-bold">Country Comparison</h1>
+        <h1 className="text-3xl font-bold">{t('comparison.title', lang)}</h1>
       </div>
 
       {/* Controls */}
       <div className="rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4 space-y-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div>
-            <label className="text-sm font-medium mb-1.5 block">Countries (max 5)</label>
+            <label className="text-sm font-medium mb-1.5 block">{t('comparison.countries', lang)}</label>
             {countriesLoading ? (
               <div className="flex items-center gap-2 px-3 py-2 rounded-md border border-[hsl(var(--input))] bg-[hsl(var(--background))] text-sm text-[hsl(var(--muted-foreground))]">
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[hsl(var(--primary))]" />
-                Loading countries...
+                {t('comparison.loadingCountries', lang)}
               </div>
             ) : countriesError ? (
               <div className="flex items-center gap-2 px-3 py-2 rounded-md border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/30 text-sm">
-                <span className="text-red-600 dark:text-red-400">Failed to load countries.</span>
+                <span className="text-red-600 dark:text-red-400">{t('comparison.failedLoadCountries', lang)}</span>
                 <button
                   onClick={() => refetchCountries()}
                   className="text-red-700 dark:text-red-300 underline hover:no-underline text-xs"
                 >
-                  Retry
+                  {t('comparison.retry', lang)}
                 </button>
               </div>
             ) : (
@@ -134,12 +137,12 @@ export default function Comparison() {
                 onSelect={handleCountriesChange}
                 multiple={true}
                 maxSelections={5}
-                placeholder="Select countries to compare..."
+                placeholder={t('comparison.selectCountries', lang)}
               />
             )}
           </div>
           <div>
-            <label className="text-sm font-medium mb-1.5 block">Time Range</label>
+            <label className="text-sm font-medium mb-1.5 block">{t('comparison.timeRange', lang)}</label>
             <TimeRangeSelector
               startYear={startParam}
               endYear={endParam}
@@ -151,7 +154,7 @@ export default function Comparison() {
 
         {/* Indicator selection */}
         <div>
-          <label className="text-sm font-medium mb-1.5 block">Indicator</label>
+          <label className="text-sm font-medium mb-1.5 block">{t('comparison.indicator', lang)}</label>
           <IndicatorCategoryTabs selected={selectedCategory} onSelect={setSelectedCategory} />
           <div className="flex flex-wrap gap-2 mt-2">
             {categoryIndicators.map((ind) => (
@@ -164,7 +167,7 @@ export default function Comparison() {
                     : 'bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--accent))]'
                 }`}
               >
-                {ind.name}
+                {indicatorName(ind, lang)}
               </button>
             ))}
           </div>
@@ -175,7 +178,7 @@ export default function Comparison() {
       {selectedCountries.length === 0 ? (
         <div className="rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-12 text-center">
           <p className="text-[hsl(var(--muted-foreground))]">
-            Select at least 2 countries above to start comparing.
+            {t('comparison.selectPrompt', lang)}
           </p>
         </div>
       ) : comparisonQuery.isError ? (
@@ -184,14 +187,14 @@ export default function Comparison() {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">
-              {selectedIndicator?.name || indicatorParam}
+              {indicatorName(selectedIndicator, lang) || indicatorParam}
             </h2>
             <DataExportButton onClick={handleExport} />
           </div>
 
           {/* Line chart */}
           <div className="rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4">
-            <h3 className="text-sm font-medium mb-2">Trend Over Time</h3>
+            <h3 className="text-sm font-medium mb-2">{t('comparison.trendOverTime', lang)}</h3>
             <LineChart
               series={lineSeries}
               xAxisData={xAxisData}
@@ -206,7 +209,7 @@ export default function Comparison() {
           {/* Bar chart comparison */}
           {barData.length > 0 && (
             <div className="rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4">
-              <h3 className="text-sm font-medium mb-2">Latest Values Comparison</h3>
+              <h3 className="text-sm font-medium mb-2">{t('comparison.latestValues', lang)}</h3>
               <BarChart
                 data={barData}
                 formatValue={formatter}

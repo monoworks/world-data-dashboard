@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Globe } from 'lucide-react'
 import { useIndicatorData, useMultiIndicator } from '@/hooks/useIndicator'
 import { useFileStorage } from '@/hooks/useFileStorage'
+import { useUIStore } from '@/stores/uiStore'
 import { WorldChoroplethMap } from '@/components/charts/WorldChoroplethMap'
 import { BarChart } from '@/components/charts/BarChart'
 import { DataCard } from '@/components/common/DataCard'
@@ -14,19 +15,21 @@ import {
   WORLD_COUNTRY_CODE,
 } from '@/utils/constants'
 import { getIndicatorFormatter, formatCurrency, formatPopulation, formatPercent } from '@/utils/formatters'
+import { t, indicatorName } from '@/utils/i18n'
 import type { IndicatorCategory } from '@/types/indicator'
 
 const OVERVIEW_INDICATORS = [
-  { code: 'SP.POP.TOTL', label: 'World Population', format: formatPopulation },
-  { code: 'NY.GDP.MKTP.CD', label: 'Global GDP', format: formatCurrency },
-  { code: 'SP.DYN.LE00.IN', label: 'Avg Life Expectancy', format: (v: number) => `${v.toFixed(1)} yrs` },
-  { code: 'SL.UEM.TOTL.ZS', label: 'Avg Unemployment', format: (v: number) => formatPercent(v) },
+  { code: 'SP.POP.TOTL', labelKey: 'dashboard.worldPopulation' as const, format: formatPopulation },
+  { code: 'NY.GDP.MKTP.CD', labelKey: 'dashboard.globalGDP' as const, format: (v: number) => formatCurrency(v) },
+  { code: 'SP.DYN.LE00.IN', labelKey: 'dashboard.avgLifeExpectancy' as const, format: (v: number) => `${v.toFixed(1)} yrs` },
+  { code: 'SL.UEM.TOTL.ZS', labelKey: 'dashboard.avgUnemployment' as const, format: (v: number) => formatPercent(v) },
 ]
 
 const OVERVIEW_CODES = OVERVIEW_INDICATORS.map((ind) => ind.code)
 
 export default function Dashboard() {
   const navigate = useNavigate()
+  const lang = useUIStore((s) => s.lang)
   const [selectedCategory, setSelectedCategory] = useState<IndicatorCategory>('economy')
   const { exportIndicatorData } = useFileStorage()
 
@@ -92,10 +95,10 @@ export default function Dashboard() {
       {/* Header */}
       <div className="flex items-center gap-3">
         <Globe className="h-8 w-8 text-[hsl(var(--primary))]" />
-        <h1 className="text-3xl font-bold">World Data Dashboard</h1>
+        <h1 className="text-3xl font-bold">{t('dashboard.title', lang)}</h1>
       </div>
       <p className="text-[hsl(var(--muted-foreground))]">
-        Explore economic indicators, population demographics, and more across the globe.
+        {t('app.description', lang)}
       </p>
 
       {/* Overview Cards */}
@@ -111,7 +114,7 @@ export default function Dashboard() {
           return (
             <DataCard
               key={ind.code}
-              title={ind.label}
+              title={t(ind.labelKey, lang)}
               value={latestData?.value != null ? ind.format(latestData.value) : '--'}
               currentValue={latestData?.value ?? undefined}
               previousValue={prevData?.value ?? undefined}
@@ -131,7 +134,7 @@ export default function Dashboard() {
               setSelectedIndicatorIndex(0)
             }}
           />
-          <DataExportButton onClick={handleExport} label="Export Map Data" />
+          <DataExportButton onClick={handleExport} label={t('dashboard.exportMapData', lang)} />
         </div>
 
         {/* Indicator sub-selector */}
@@ -146,7 +149,7 @@ export default function Dashboard() {
                   : 'bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--accent))]'
               }`}
             >
-              {ind.name}
+              {indicatorName(ind, lang)}
             </button>
           ))}
         </div>
@@ -158,7 +161,7 @@ export default function Dashboard() {
       ) : (
         <div className="rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4">
           <h2 className="text-lg font-semibold mb-3">
-            {selectedIndicator?.name || 'Select an indicator'}
+            {indicatorName(selectedIndicator, lang) || t('dashboard.selectIndicator', lang)}
           </h2>
           <WorldChoroplethMap
             data={mapData}
@@ -174,7 +177,7 @@ export default function Dashboard() {
       {top10.length > 0 && (
         <div className="rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4">
           <h2 className="text-lg font-semibold mb-3">
-            Top 10 Countries - {selectedIndicator?.name}
+            {t('dashboard.top10', lang)} - {indicatorName(selectedIndicator, lang)}
           </h2>
           <BarChart
             data={top10}

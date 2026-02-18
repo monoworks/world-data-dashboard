@@ -1,4 +1,5 @@
 import { INDICATOR_CATEGORIES } from '@/utils/constants'
+import { useUIStore } from '@/stores/uiStore'
 import type { IndicatorCategory } from '@/types/indicator'
 
 interface IndicatorCategoryTabsProps {
@@ -7,6 +8,8 @@ interface IndicatorCategoryTabsProps {
 }
 
 export function IndicatorCategoryTabs({ selected, onSelect }: IndicatorCategoryTabsProps) {
+  const lang = useUIStore((s) => s.lang)
+
   return (
     <div className="flex flex-wrap gap-1">
       {INDICATOR_CATEGORIES.map((cat) => (
@@ -19,7 +22,7 @@ export function IndicatorCategoryTabs({ selected, onSelect }: IndicatorCategoryT
               : 'bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] hover:bg-[hsl(var(--accent))]'
           }`}
         >
-          {cat.label}
+          {lang === 'ja' ? cat.labelJa : cat.label}
         </button>
       ))}
     </div>

@@ -1,11 +1,7 @@
 import { Link, useLocation } from 'react-router-dom'
 import { Globe, GitCompareArrows, Search, X } from 'lucide-react'
-
-const navItems = [
-  { path: '/', label: 'Dashboard', icon: Globe },
-  { path: '/indicators', label: 'Indicators', icon: Search },
-  { path: '/compare', label: 'Compare', icon: GitCompareArrows },
-]
+import { useUIStore } from '@/stores/uiStore'
+import { t } from '@/utils/i18n'
 
 interface SidebarProps {
   open: boolean
@@ -14,6 +10,13 @@ interface SidebarProps {
 
 export function Sidebar({ open, onClose }: SidebarProps) {
   const location = useLocation()
+  const lang = useUIStore((s) => s.lang)
+
+  const navItems = [
+    { path: '/', label: t('nav.dashboard', lang), icon: Globe },
+    { path: '/indicators', label: t('nav.indicators', lang), icon: Search },
+    { path: '/compare', label: t('nav.compare', lang), icon: GitCompareArrows },
+  ]
 
   return (
     <>
@@ -32,7 +35,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         }`}
       >
         <div className="flex items-center justify-between p-4 border-b border-[hsl(var(--border))]">
-          <span className="font-bold text-lg">Menu</span>
+          <span className="font-bold text-lg">{t('nav.menu', lang)}</span>
           <button
             className="p-2 rounded-md hover:bg-[hsl(var(--accent))]"
             onClick={onClose}

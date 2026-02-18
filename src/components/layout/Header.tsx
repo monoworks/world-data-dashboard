@@ -1,22 +1,23 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Globe, GitCompareArrows, Search, Sun, Moon, Menu, Upload, Check, AlertCircle } from 'lucide-react'
+import { Globe, GitCompareArrows, Search, Sun, Moon, Menu, Upload, Check, AlertCircle, Languages } from 'lucide-react'
 import { useUIStore } from '@/stores/uiStore'
 import { useFileStorage } from '@/hooks/useFileStorage'
-
-const navItems = [
-  { path: '/', label: 'Dashboard', icon: Globe },
-  { path: '/indicators', label: 'Indicators', icon: Search },
-  { path: '/compare', label: 'Compare', icon: GitCompareArrows },
-]
+import { t } from '@/utils/i18n'
 
 export function Header({ onMenuClick }: { onMenuClick?: () => void }) {
   const location = useLocation()
-  const { theme, setTheme } = useUIStore()
+  const { theme, setTheme, lang, setLang } = useUIStore()
   const { importData } = useFileStorage()
   const [importStatus, setImportStatus] = useState<'idle' | 'success' | 'error'>('idle')
 
   const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+
+  const navItems = [
+    { path: '/', label: t('nav.dashboard', lang), icon: Globe },
+    { path: '/indicators', label: t('nav.indicators', lang), icon: Search },
+    { path: '/compare', label: t('nav.compare', lang), icon: GitCompareArrows },
+  ]
 
   const handleImport = async (file: File) => {
     try {
@@ -30,6 +31,12 @@ export function Header({ onMenuClick }: { onMenuClick?: () => void }) {
       setTimeout(() => setImportStatus('idle'), 3000)
     }
   }
+
+  const importLabel = importStatus === 'success'
+    ? (lang === 'ja' ? '完了！' : 'Imported!')
+    : importStatus === 'error'
+      ? (lang === 'ja' ? 'エラー' : 'Error')
+      : t('common.import', lang)
 
   return (
     <header className="sticky top-0 z-50 border-b border-[hsl(var(--border))] bg-[hsl(var(--background))]/95 backdrop-blur">
@@ -46,7 +53,7 @@ export function Header({ onMenuClick }: { onMenuClick?: () => void }) {
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 font-bold text-lg no-underline text-[hsl(var(--foreground))]">
           <Globe className="h-6 w-6 text-[hsl(var(--primary))]" />
-          <span className="hidden sm:inline">World Data Dashboard</span>
+          <span className="hidden sm:inline">{t('app.title', lang)}</span>
         </Link>
 
         {/* Navigation */}
@@ -82,7 +89,7 @@ export function Header({ onMenuClick }: { onMenuClick?: () => void }) {
                 ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
                 : 'hover:bg-[hsl(var(--accent))] text-[hsl(var(--muted-foreground))]'
           }`}
-          title="Import JSON data"
+          title={t('common.import', lang)}
         >
           {importStatus === 'success' ? (
             <Check className="h-4 w-4" />
@@ -91,9 +98,7 @@ export function Header({ onMenuClick }: { onMenuClick?: () => void }) {
           ) : (
             <Upload className="h-4 w-4" />
           )}
-          <span className="hidden sm:inline">
-            {importStatus === 'success' ? 'Imported!' : importStatus === 'error' ? 'Error' : 'Import'}
-          </span>
+          <span className="hidden sm:inline">{importLabel}</span>
           <input
             type="file"
             accept=".json"
@@ -105,6 +110,17 @@ export function Header({ onMenuClick }: { onMenuClick?: () => void }) {
             }}
           />
         </label>
+
+        {/* Language toggle */}
+        <button
+          className="flex items-center gap-1.5 px-2 py-1.5 rounded-md hover:bg-[hsl(var(--accent))] text-sm font-medium text-[hsl(var(--muted-foreground))]"
+          onClick={() => setLang(lang === 'en' ? 'ja' : 'en')}
+          aria-label="Toggle language"
+          title={lang === 'en' ? '日本語に切り替え' : 'Switch to English'}
+        >
+          <Languages className="h-4 w-4" />
+          <span className="uppercase">{lang}</span>
+        </button>
 
         {/* Theme toggle */}
         <button

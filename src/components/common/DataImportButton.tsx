@@ -1,4 +1,6 @@
 import { Upload } from 'lucide-react'
+import { useUIStore } from '@/stores/uiStore'
+import { t } from '@/utils/i18n'
 
 interface DataImportButtonProps {
   onImport: (file: File) => void
@@ -8,18 +10,21 @@ interface DataImportButtonProps {
 
 export function DataImportButton({
   onImport,
-  label = 'Import JSON',
+  label,
   size = 'sm',
 }: DataImportButtonProps) {
+  const lang = useUIStore((s) => s.lang)
+  const displayLabel = label || t('common.importJSON', lang)
+
   return (
     <label
       className={`inline-flex items-center gap-1.5 rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] transition-colors cursor-pointer ${
         size === 'sm' ? 'px-2.5 py-1.5 text-xs' : 'px-3 py-2 text-sm'
       }`}
-      title={label}
+      title={displayLabel}
     >
       <Upload className={size === 'sm' ? 'h-3.5 w-3.5' : 'h-4 w-4'} />
-      {label}
+      {displayLabel}
       <input
         type="file"
         accept=".json"

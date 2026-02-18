@@ -5,6 +5,7 @@ import { isoToEchartsName, echartsNameToIso } from '@/utils/countryNameMap'
 import { useUIStore } from '@/stores/uiStore'
 import { getIndicatorFormatter } from '@/utils/formatters'
 import { INDICATOR_REGISTRY } from '@/utils/constants'
+import { t, indicatorName as getIndicatorDisplayName } from '@/utils/i18n'
 import type { EChartsOption } from 'echarts'
 
 interface MapDataItem {
@@ -29,6 +30,7 @@ export function WorldChoroplethMap({
 }: WorldChoroplethMapProps) {
   const [mapReady, setMapReady] = useState(false)
   const theme = useUIStore((s) => s.theme)
+  const lang = useUIStore((s) => s.lang)
   const isDark =
     theme === 'dark' ||
     (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
@@ -41,13 +43,15 @@ export function WorldChoroplethMap({
     return (
       <div style={{ height }} className="flex flex-col items-center justify-center gap-3 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[hsl(var(--primary))]" />
-        <p className="text-sm text-[hsl(var(--muted-foreground))]">Loading world map...</p>
+        <p className="text-sm text-[hsl(var(--muted-foreground))]">{t('common.loadingWorldMap', lang)}</p>
       </div>
     )
   }
 
   const formatter = getIndicatorFormatter(indicatorCode)
-  const indicatorName = INDICATOR_REGISTRY[indicatorCode]?.name || indicatorCode
+  const indicatorMeta = INDICATOR_REGISTRY[indicatorCode]
+  const displayName = getIndicatorDisplayName(indicatorMeta, lang) || indicatorCode
+  const noDataLabel = t('common.noData', lang)
 
   // Transform data: ISO3 codes -> ECharts map names
   const mappedData = data
@@ -67,9 +71,9 @@ export function WorldChoroplethMap({
       formatter: (params: unknown) => {
         const p = params as { name: string; value?: number }
         if (p.value === undefined || isNaN(p.value)) {
-          return `${p.name}: No data`
+          return `${p.name}: ${noDataLabel}`
         }
-        return `<strong>${p.name}</strong><br/>${indicatorName}: ${formatter(p.value)}`
+        return `<strong>${p.name}</strong><br/>${displayName}: ${formatter(p.value)}`
       },
     },
     visualMap: [

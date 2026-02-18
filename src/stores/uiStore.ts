@@ -2,13 +2,16 @@ import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 
 type Theme = 'light' | 'dark' | 'system'
+export type Lang = 'en' | 'ja'
 
 interface UIState {
   theme: Theme
+  lang: Lang
   sidebarCollapsed: boolean
   recentCountries: string[]
   favoriteIndicators: string[]
   setTheme: (theme: Theme) => void
+  setLang: (lang: Lang) => void
   toggleSidebar: () => void
   addRecentCountry: (iso3: string) => void
   toggleFavoriteIndicator: (code: string) => void
@@ -28,6 +31,7 @@ export const useUIStore = create<UIState>()(
   persist(
     (set, get) => ({
       theme: 'light',
+      lang: (navigator.language.startsWith('ja') ? 'ja' : 'en') as Lang,
       sidebarCollapsed: false,
       recentCountries: [],
       favoriteIndicators: [],
@@ -36,6 +40,8 @@ export const useUIStore = create<UIState>()(
         applyTheme(theme)
         set({ theme })
       },
+
+      setLang: (lang) => set({ lang }),
 
       toggleSidebar: () => set({ sidebarCollapsed: !get().sidebarCollapsed }),
 
