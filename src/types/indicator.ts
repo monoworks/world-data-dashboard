@@ -1,4 +1,4 @@
-export type IndicatorCategory = 'economy' | 'population' | 'trade' | 'social' | 'governance'
+export type IndicatorCategory = 'economy' | 'population' | 'trade' | 'social' | 'governance' | 'environment' | 'technology'
 
 export interface IndicatorMeta {
   code: string
