@@ -39,8 +39,9 @@ export function WorldChoroplethMap({
 
   if (!mapReady) {
     return (
-      <div style={{ height }} className="flex items-center justify-center rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))]">
+      <div style={{ height }} className="flex flex-col items-center justify-center gap-3 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[hsl(var(--primary))]" />
+        <p className="text-sm text-[hsl(var(--muted-foreground))]">Loading world map...</p>
       </div>
     )
   }

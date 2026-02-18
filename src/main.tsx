@@ -6,8 +6,8 @@ import App from './App.tsx'
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      gcTime: 3_600_000,        // 1 hour memory cache
-      staleTime: 1_800_000,     // 30 min fresh period
+      gcTime: 24 * 60 * 60_000,    // 24h memory cache
+      staleTime: 12 * 60 * 60_000, // 12h fresh (World Bank data updates infrequently)
       retry: 2,
       refetchOnWindowFocus: false,
     },

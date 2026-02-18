@@ -28,12 +28,23 @@ echarts.use([
 
 export { echarts }
 
-// Register world map lazily
+// Register world map — start loading immediately, not lazily
 let mapRegistered = false
+let mapLoadingPromise: Promise<void> | null = null
+
+export function preloadWorldMap(): void {
+  if (mapRegistered || mapLoadingPromise) return
+  mapLoadingPromise = import('@/assets/world.json').then((worldJson) => {
+    echarts.registerMap('world', worldJson.default as unknown as Parameters<typeof echarts.registerMap>[1])
+    mapRegistered = true
+  })
+}
 
 export async function ensureWorldMapRegistered(): Promise<void> {
   if (mapRegistered) return
-  const worldJson = await import('@/assets/world.json')
-  echarts.registerMap('world', worldJson.default as unknown as Parameters<typeof echarts.registerMap>[1])
-  mapRegistered = true
+  if (!mapLoadingPromise) preloadWorldMap()
+  await mapLoadingPromise
 }
+
+// Start preloading immediately when this module is imported
+preloadWorldMap()
