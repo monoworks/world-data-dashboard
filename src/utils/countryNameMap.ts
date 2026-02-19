@@ -165,7 +165,7 @@ export const isoToEchartsName: Record<string, string> = {
   UKR: 'Ukraine',
   ARE: 'United Arab Emirates',
   GBR: 'United Kingdom',
-  USA: 'United States of America',
+  USA: 'United States',
   URY: 'Uruguay',
   UZB: 'Uzbekistan',
   VUT: 'Vanuatu',
